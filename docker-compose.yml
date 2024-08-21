@@ -1,0 +1,35 @@
+version: '3.5'
+services:
+  nest_api:
+    container_name: nest_api
+    build:
+      context: ./docker/api/dev
+      dockerfile: Dockerfile
+    user: 'root'
+    command: >
+      bash -c "npm i
+      && npm run build
+      && nest start --debug 0.0.0.0:9229 --watch --preserveWatchOutput"
+    ports:
+      - '4003:4003'
+      - '9229:9229'
+    volumes:
+      - .:/app
+    depends_on:
+      - db_postgres
+    environment:
+      - NODE_ENV=development
+
+  db_postgres:
+    container_name: db_postgres
+    image: postgres:14.6-alpine
+    restart: always
+    user: root
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: my_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./docker/pgdata:/var/lib/postgresql/data
